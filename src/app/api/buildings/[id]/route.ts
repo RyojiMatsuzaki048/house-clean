@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // 建物の個別取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const id = parseInt(params.id)
@@ -40,7 +40,7 @@ export async function GET(
 // 建物の削除（論理削除）
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const id = parseInt(params.id)

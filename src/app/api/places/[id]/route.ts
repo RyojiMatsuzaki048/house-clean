@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // 掃除場所の削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const id = parseInt(params.id)

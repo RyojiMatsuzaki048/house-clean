@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // 特定の担当者割り当てを削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; assignmentId: string } }
+  { params }: { params: any }
 ) {
   try {
     const taskId = parseInt(params.id)

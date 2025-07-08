@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // タスクの担当者割り当て一覧を取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const taskId = parseInt(params.id)
@@ -34,7 +34,7 @@ export async function GET(
 // タスクに担当者を追加
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const taskId = parseInt(params.id)
