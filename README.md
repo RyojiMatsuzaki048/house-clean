@@ -33,20 +33,22 @@ git clone https://github.com/yourusername/house-clean.git
 cd house-clean
 ```
 
-### 2. 依存関係のインストール
+### 2. 環境変数の設定
+
+`env.example`ファイルを参考に、`.env`ファイルを作成：
+
+```bash
+cp env.example .env
+```
+
+`.env`ファイルを編集して、適切な値を設定してください。
+
+### 3. 依存関係のインストール
 
 ```bash
 npm install
 # または
 yarn install
-```
-
-### 3. 環境変数の設定
-
-`.env`ファイルを作成し、以下の内容を追加：
-
-```env
-DATABASE_URL="file:./dev.db"
 ```
 
 ### 4. データベースのセットアップ
@@ -68,6 +70,42 @@ yarn dev
 ```
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションにアクセスできます。
+
+## 🚀 デプロイ
+
+### Vercel（推奨）
+
+1. [Vercel](https://vercel.com)にアクセスしてGitHubアカウントでログイン
+2. 「New Project」をクリック
+3. `house-clean`リポジトリを選択
+4. 環境変数を設定：
+   - `DATABASE_URL`: 本番用のデータベースURL（PostgreSQL推奨）
+5. 「Deploy」をクリック
+
+### Railway
+
+1. [Railway](https://railway.app)にアクセスしてGitHubアカウントでログイン
+2. 「New Project」→「Deploy from GitHub repo」
+3. `house-clean`リポジトリを選択
+4. 環境変数を設定してデプロイ
+
+### 本番環境用データベース
+
+本番環境ではPostgreSQLの使用を推奨します：
+
+1. **Prismaスキーマの更新**:
+```prisma
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql" // SQLiteから変更
+  url      = env("DATABASE_URL")
+}
+```
+
+2. **環境変数の設定**:
+```env
+DATABASE_URL="postgresql://username:password@host:port/database"
+```
 
 ## 📁 プロジェクト構造
 
