@@ -15,6 +15,7 @@ export async function GET() {
     })
     return NextResponse.json(buildings)
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: '建物の取得に失敗しました' },
       { status: 500 }
@@ -50,6 +51,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(building, { status: 201 })
   } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: '建物の作成に失敗しました' },
       { status: 500 }
