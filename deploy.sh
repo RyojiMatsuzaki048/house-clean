@@ -10,11 +10,15 @@ if [ "$1" = "production" ] || [ "$NODE_ENV" = "production" ]; then
     ENV="production"
     COMPOSE_FILE="docker-compose.production.yml"
     export NODE_ENV=production
+    echo "本番用スキーマを適用: prisma/schema.production.prisma → prisma/schema.prisma"
+    cp prisma/schema.production.prisma prisma/schema.prisma
 elif [ "$1" = "development" ] || [ "$NODE_ENV" = "development" ] || [ -z "$NODE_ENV" ]; then
     echo "🔧 開発環境にデプロイします..."
     ENV="development"
     COMPOSE_FILE="docker-compose.yml"
     export NODE_ENV=development
+    echo "開発用スキーマを適用: prisma/schema.development.prisma → prisma/schema.prisma"
+    cp prisma/schema.development.prisma prisma/schema.prisma
 else
     echo "❌ 使用方法: $0 [development|production]"
     echo "または環境変数 NODE_ENV=development|production を設定してください"
