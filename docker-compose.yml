@@ -6,27 +6,11 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
-    depends_on:
-      - db
     restart: unless-stopped
     networks:
       - app-network
     volumes:
-      - ./prisma/dev.db:/app/prisma/dev.db
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB:-house_clean}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-    networks:
-      - app-network
+      - ./dev.db:/app/dev.db
 
   nginx:
     image: nginx:alpine
@@ -41,9 +25,6 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-
-volumes:
-  postgres_data:
 
 networks:
   app-network:
