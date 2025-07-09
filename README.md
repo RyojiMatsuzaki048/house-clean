@@ -35,13 +35,24 @@ cd house-clean
 
 ### 2. 環境変数の設定
 
-`env.example`ファイルを参考に、`.env`ファイルを作成：
+環境別の環境変数ファイルが用意されています：
+
+- **開発環境**: `env.development` - SQLite使用
+- **本番環境**: `env.production` - PostgreSQL使用
+
+必要に応じて、これらのファイルを編集してください。
+
+#### 開発環境での実行
 
 ```bash
-cp env.example .env
-```
+# 開発環境用スクリプトを使用（推奨）
+chmod +x dev.sh
+./dev.sh
 
-`.env`ファイルを編集して、適切な値を設定してください。
+# または手動で実行
+export $(cat env.development | grep -v '^#' | xargs)
+npm run dev
+```
 
 ### 3. 依存関係のインストール
 
@@ -77,19 +88,8 @@ yarn dev
 
 #### 方法1: デプロイスクリプトを使用（推奨）
 
-1. **環境変数の設定**:
-```bash
-# 本番環境の場合
-export POSTGRES_PASSWORD=your-secure-password
-export POSTGRES_DB=house_clean
-export POSTGRES_USER=postgres
-export NODE_ENV=production
+デプロイスクリプトが自動的に環境変数ファイルを読み込みます：
 
-# 開発環境の場合
-export NODE_ENV=development
-```
-
-2. **デプロイスクリプトの実行**:
 ```bash
 chmod +x deploy.sh
 
@@ -103,6 +103,8 @@ NODE_ENV=development ./deploy.sh
 # または
 NODE_ENV=production ./deploy.sh
 ```
+
+**注意**: 本番環境では、`env.production`ファイルの`POSTGRES_PASSWORD`を安全なパスワードに変更してください。
 
 #### 方法2: 手動でDocker Composeを使用
 

@@ -8,8 +8,8 @@ export async function GET() {
     const startOfWeek = new Date(today)
     startOfWeek.setDate(today.getDate() - today.getDay())
 
-    // 今日やるべきタスク（ユーザー別）
-    const todayTasks = await prisma.task.findMany({
+    // 今日やるべきタスク（サイクルに基づいてフィルタリング）
+    const allTasks = await prisma.task.findMany({
       include: {
         place: {
           include: {
@@ -22,13 +22,33 @@ export async function GET() {
           }
         },
         taskLogs: {
-          where: {
-            dateDone: {
-              gte: new Date(today.getFullYear(), today.getMonth(), today.getDate())
-            }
-          }
+          orderBy: {
+            dateDone: 'desc'
+          },
+          take: 1
         }
       }
+    })
+
+    // サイクルに基づいて今日やるべきタスクをフィルタリング
+    const todayTasks = allTasks.filter(task => {
+      const lastTaskLog = task.taskLogs[0]
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      if (!lastTaskLog) {
+        // 一度も実行されていないタスクは今日やるべき
+        return true
+      }
+
+      const lastDoneDate = new Date(lastTaskLog.dateDone)
+      lastDoneDate.setHours(0, 0, 0, 0)
+
+      // 今日の日付 > 前回タスク実施日 + サイクルの日数 の場合、今日やるべき
+      const nextDueDate = new Date(lastDoneDate)
+      nextDueDate.setDate(lastDoneDate.getDate() + task.cycleDays)
+
+      return today >= nextDueDate
     })
 
     // 今週の実施状況

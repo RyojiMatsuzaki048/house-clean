@@ -86,7 +86,7 @@ export default function BuildingsPage() {
           <h1 className="text-3xl font-bold">建物一覧</h1>
           <p className="text-muted-foreground">登録されている建物の管理</p>
         </div>
-        <Link href="/buildings/new">
+        <Link href="/admin">
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             建物を追加
@@ -102,7 +102,7 @@ export default function BuildingsPage() {
             <p className="text-muted-foreground mb-4">
               最初の建物を登録して掃除管理を始めましょう
             </p>
-            <Link href="/buildings/new">
+            <Link href="/admin">
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
                 建物を追加

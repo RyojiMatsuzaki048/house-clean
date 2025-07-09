@@ -9,6 +9,7 @@ if [ "$1" = "production" ] || [ "$NODE_ENV" = "production" ]; then
     echo "📦 本番環境にデプロイします..."
     ENV="production"
     COMPOSE_FILE="docker-compose.production.yml"
+    ENV_FILE="env.production"
     export NODE_ENV=production
     echo "本番用スキーマを適用: prisma/schema.production.prisma → prisma/schema.prisma"
     cp prisma/schema.production.prisma prisma/schema.prisma
@@ -16,6 +17,7 @@ elif [ "$1" = "development" ] || [ "$NODE_ENV" = "development" ] || [ -z "$NODE_
     echo "🔧 開発環境にデプロイします..."
     ENV="development"
     COMPOSE_FILE="docker-compose.yml"
+    ENV_FILE="env.development"
     export NODE_ENV=development
     echo "開発用スキーマを適用: prisma/schema.development.prisma → prisma/schema.prisma"
     cp prisma/schema.development.prisma prisma/schema.prisma
@@ -29,6 +31,16 @@ else
 fi
 
 echo "🔍 現在の環境: $ENV (NODE_ENV=$NODE_ENV)"
+
+# 環境変数ファイルの存在確認と適用
+if [ -f "$ENV_FILE" ]; then
+    echo "📄 環境変数ファイルを適用: $ENV_FILE"
+    export $(cat $ENV_FILE | grep -v '^#' | xargs)
+    echo "✅ 環境変数が読み込まれました"
+else
+    echo "⚠️  環境変数ファイルが見つかりません: $ENV_FILE"
+    echo "📝 手動で環境変数を設定してください"
+fi
 
 # 本番環境の場合の環境変数チェック
 if [ "$ENV" = "production" ]; then

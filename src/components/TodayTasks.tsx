@@ -62,8 +62,27 @@ export function TodayTasks({ tasks, onTaskComplete }: TodayTasksProps) {
     }
   }
 
-  const completedTasks = tasks.filter(task => task.taskLogs.length > 0)
-  const pendingTasks = tasks.filter(task => task.taskLogs.length === 0)
+  // 今日完了したタスク（今日の日付でフィルタリング）
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const completedTasks = tasks.filter(task => {
+    const todayLogs = task.taskLogs.filter(log => {
+      const logDate = new Date(log.dateDone)
+      logDate.setHours(0, 0, 0, 0)
+      return logDate.getTime() === today.getTime()
+    })
+    return todayLogs.length > 0
+  })
+  
+  const pendingTasks = tasks.filter(task => {
+    const todayLogs = task.taskLogs.filter(log => {
+      const logDate = new Date(log.dateDone)
+      logDate.setHours(0, 0, 0, 0)
+      return logDate.getTime() === today.getTime()
+    })
+    return todayLogs.length === 0
+  })
 
   return (
     <Card>
@@ -102,7 +121,7 @@ export function TodayTasks({ tasks, onTaskComplete }: TodayTasksProps) {
                               担当: {task.assignments.map(a => a.user.name).join(', ')}
                             </p>
                             <p className="text-sm text-blue-600">
-                              💰 {task.point}ポイント
+                              💰 {task.point}ポイント • 🔄 {task.cycleDays}日周期
                             </p>
                           </div>
                           <div className="flex flex-col gap-1">
@@ -144,7 +163,7 @@ export function TodayTasks({ tasks, onTaskComplete }: TodayTasksProps) {
                             担当: {task.assignments.map(a => a.user.name).join(', ')}
                           </p>
                           <p className="text-sm text-green-600">
-                            ✅ 完了済み (💰 {task.point}ポイント獲得)
+                            ✅ 完了済み (💰 {task.point}ポイント獲得) • 🔄 {task.cycleDays}日周期
                           </p>
                         </div>
                       </div>
