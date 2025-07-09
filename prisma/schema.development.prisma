@@ -1,5 +1,4 @@
-// 開発環境用Prismaスキーマファイル
-// This is your Prisma schema file,
+// This is your Prisma schema file for development (SQLite),
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -12,9 +11,10 @@ datasource db {
 }
 
 model Building {
-  id      Int     @id @default(autoincrement())
-  name    String
-  places  Place[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // 建物の説明（任意）
+  places      Place[]
 }
 
 model Place {

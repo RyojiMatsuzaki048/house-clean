@@ -1,27 +1,28 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-house_clean}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - app-network
+
   app:
     build: .
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    restart: unless-stopped
-    networks:
-      - app-network
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-house_clean}
+      - PRISMA_SCHEMA_FILE=schema.production.prisma
     depends_on:
       - postgres
-    volumes:
-      - ./prisma/schema.production.prisma:/app/prisma/schema.prisma
-
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - app-network
@@ -40,9 +41,9 @@ services:
     networks:
       - app-network
 
+volumes:
+  postgres_data:
+
 networks:
   app-network:
-    driver: bridge
-
-volumes:
-  postgres_data: 
+    driver: bridge 
