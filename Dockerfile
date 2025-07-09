@@ -3,7 +3,7 @@ FROM node:18-alpine AS base
 
 # 依存関係のインストール
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat postgresql-client
 WORKDIR /app
 
 # package.jsonとpackage-lock.jsonをコピー
@@ -25,6 +25,9 @@ RUN npm run build
 # 本番環境
 FROM base AS runner
 WORKDIR /app
+
+# PostgreSQLクライアントのインストール
+RUN apk add --no-cache postgresql-client
 
 ENV NODE_ENV production
 

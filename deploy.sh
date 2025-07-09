@@ -1,60 +1,72 @@
 #!/bin/bash
 
-# デプロイスクリプト
-set -e
+# 開発環境と本番環境を自動切り替えするデプロイスクリプト
 
-echo "�� デプロイを開始します..."
+echo "🚀 デプロイを開始します..."
 
-# 環境変数ファイルを明示的に読み込み
-if [ -f .env ]; then
-    echo "📄 環境変数ファイルを読み込み中..."
-    # .envファイルから環境変数を読み込み
-    export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)
-    echo "✅ 環境変数を読み込みました"
+# 環境の自動判断
+if [ "$1" = "production" ] || [ "$NODE_ENV" = "production" ]; then
+    echo "📦 本番環境にデプロイします..."
+    ENV="production"
+    COMPOSE_FILE="docker-compose.production.yml"
+    export NODE_ENV=production
+elif [ "$1" = "development" ] || [ "$NODE_ENV" = "development" ] || [ -z "$NODE_ENV" ]; then
+    echo "🔧 開発環境にデプロイします..."
+    ENV="development"
+    COMPOSE_FILE="docker-compose.yml"
+    export NODE_ENV=development
 else
-    echo "❌ .envファイルが見つかりません"
+    echo "❌ 使用方法: $0 [development|production]"
+    echo "または環境変数 NODE_ENV=development|production を設定してください"
+    echo "例: $0 development  # 開発環境"
+    echo "例: $0 production   # 本番環境"
+    echo "例: NODE_ENV=production $0  # 環境変数で指定"
     exit 1
 fi
 
-# 環境変数の確認
-if [ -z "$DATABASE_URL" ]; then
-    echo "❌ DATABASE_URLが設定されていません"
-    echo "現在の環境変数:"
-    echo "DATABASE_URL: $DATABASE_URL"
-    echo "POSTGRES_DB: $POSTGRES_DB"
-    echo "POSTGRES_USER: $POSTGRES_USER"
-    exit 1
+echo "🔍 現在の環境: $ENV (NODE_ENV=$NODE_ENV)"
+
+# 本番環境の場合の環境変数チェック
+if [ "$ENV" = "production" ]; then
+    if [ -z "$POSTGRES_PASSWORD" ]; then
+        echo "❌ POSTGRES_PASSWORD環境変数が設定されていません"
+        echo "export POSTGRES_PASSWORD=your-secure-password を実行してください"
+        exit 1
+    fi
+
+    if [ -z "$POSTGRES_DB" ]; then
+        export POSTGRES_DB=house_clean
+    fi
+
+    if [ -z "$POSTGRES_USER" ]; then
+        export POSTGRES_USER=postgres
+    fi
 fi
 
-echo "✅ DATABASE_URLが設定されています: ${DATABASE_URL:0:30}..."
+# 既存のコンテナを停止
+echo "🛑 既存のコンテナを停止中..."
+docker-compose down
 
-# 最新のコードを取得
-echo "�� 最新のコードを取得中..."
-git pull origin main
-
-# 古いコンテナとイメージを削除
-echo "🧹 古いコンテナとイメージを削除中..."
-docker-compose down --rmi all --volumes --remove-orphans
-
-# 新しいイメージをビルド
-echo "🔨 Dockerイメージをビルド中..."
-docker-compose build --no-cache
-
-# データベースマイグレーション
-echo "��️ データベースマイグレーションを実行中..."
-docker-compose run --rm app npx prisma migrate deploy
+# 本番環境の場合、PostgreSQLを先に起動
+if [ "$ENV" = "production" ]; then
+    echo "📦 PostgreSQLを起動中..."
+    docker-compose -f $COMPOSE_FILE up -d postgres
+    
+    echo "⏳ PostgreSQLの起動を待機中..."
+    sleep 10
+fi
 
 # アプリケーションを起動
 echo "🚀 アプリケーションを起動中..."
-docker-compose up -d
+docker-compose -f $COMPOSE_FILE up -d app
 
-# ヘルスチェック
-echo "�� ヘルスチェック中..."
-sleep 10
-if curl -f http://localhost:3000/api/health > /dev/null 2>&1; then
-    echo "✅ デプロイが完了しました！"
+# マイグレーションを実行
+echo "🗄️ データベースマイグレーションを実行中..."
+if [ "$ENV" = "production" ]; then
+    docker-compose -f $COMPOSE_FILE exec app npx prisma migrate deploy
 else
-    echo "❌ デプロイに失敗しました"
-    docker-compose logs app
-    exit 1
+    docker-compose -f $COMPOSE_FILE exec app npx prisma db push
 fi
+
+echo "✅ $ENV環境へのデプロイが完了しました！"
+echo "🌐 アプリケーションは http://localhost:3000 でアクセス可能です"

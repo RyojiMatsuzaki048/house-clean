@@ -73,6 +73,47 @@ yarn dev
 
 ## 🚀 デプロイ
 
+### Docker Compose（本番環境推奨）
+
+#### 方法1: デプロイスクリプトを使用（推奨）
+
+1. **環境変数の設定**:
+```bash
+# 本番環境の場合
+export POSTGRES_PASSWORD=your-secure-password
+export POSTGRES_DB=house_clean
+export POSTGRES_USER=postgres
+export NODE_ENV=production
+
+# 開発環境の場合
+export NODE_ENV=development
+```
+
+2. **デプロイスクリプトの実行**:
+```bash
+chmod +x deploy.sh
+
+# 開発環境
+./deploy.sh development
+# または
+NODE_ENV=development ./deploy.sh
+
+# 本番環境
+./deploy.sh production
+# または
+NODE_ENV=production ./deploy.sh
+```
+
+#### 方法2: 手動でDocker Composeを使用
+
+```bash
+# 開発環境
+docker-compose up -d
+
+# 本番環境
+docker-compose -f docker-compose.production.yml up -d
+```
+
 ### Vercel（推奨）
 
 1. [Vercel](https://vercel.com)にアクセスしてGitHubアカウントでログイン
@@ -105,6 +146,30 @@ datasource db {
 2. **環境変数の設定**:
 ```env
 DATABASE_URL="postgresql://username:password@host:port/database"
+```
+
+### 手動デプロイ手順
+
+1. **PostgreSQLの起動**:
+```bash
+docker-compose up -d postgres
+```
+
+2. **環境変数の設定**:
+```bash
+export POSTGRES_PASSWORD=your-secure-password
+export POSTGRES_DB=house_clean
+export POSTGRES_USER=postgres
+```
+
+3. **アプリケーションの起動**:
+```bash
+docker-compose up -d app
+```
+
+4. **マイグレーションの実行**:
+```bash
+docker-compose exec app npx prisma migrate deploy
 ```
 
 ## 📁 プロジェクト構造

@@ -10,7 +10,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:generate:production": "cp prisma/schema.production.prisma prisma/schema.prisma && prisma generate",
+    "db:generate:development": "cp prisma/schema.development.prisma prisma/schema.prisma && prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
