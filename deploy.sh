@@ -69,4 +69,4 @@ else
 fi
 
 echo "✅ $ENV環境へのデプロイが完了しました！"
-echo "🌐 アプリケーションは http://localhost:3000 でアクセス可能です"
+echo "🌐 アプリケーションは http://localhost:3000 でアクセス可能です" 
