@@ -14,10 +14,10 @@ export async function GET() {
       }
     })
     return NextResponse.json(buildings)
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    console.error('API Error:', error?.message || error)
     return NextResponse.json(
-      { error: '建物の取得に失敗しました' },
+      { error: '建物の取得に失敗しました', detail: error?.message || error },
       { status: 500 }
     )
   }
@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name } = body
+    const { name, description } = body
 
     if (!name) {
       return NextResponse.json(
@@ -46,14 +46,14 @@ export async function POST(request: NextRequest) {
     }
 
     const building = await prisma.building.create({
-      data: { name }
+      data: { name, description } // descriptionも保存
     })
 
     return NextResponse.json(building, { status: 201 })
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    console.error('API Error:', error?.message || error)
     return NextResponse.json(
-      { error: '建物の作成に失敗しました' },
+      { error: '建物の作成に失敗しました', detail: error?.message || error },
       { status: 500 }
     )
   }

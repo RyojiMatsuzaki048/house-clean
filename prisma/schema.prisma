@@ -14,9 +14,10 @@ datasource db {
 }
 
 model Building {
-  id      Int     @id @default(autoincrement())
-  name    String
-  places  Place[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // 建物の説明（任意）
+  places      Place[]
 }
 
 model Place {
